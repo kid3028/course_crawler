@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Message, Loading } from 'element-ui'
 
-const ConfigBaseURL = 'http://localhost:8080/'
+const ConfigBaseURL = 'http://localhost:8080/api'
 
 let loadingInstance = null //这里是loading
 
