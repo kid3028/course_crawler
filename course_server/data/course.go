@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var(
+var (
 	// 年级科目下课程地址（专题课、系统可）
 	courseDataUrl = "https://fudao.qq.com/cgi-proxy/course/discover_subject?grade=%d&subject=%d&showid=0&page=%d&size=%d"
 	// 系统课地址
@@ -20,57 +20,55 @@ var(
 // 课程数据聚合
 type CourseData struct {
 	RetCode uint32 `json:"retcode"`
-	Grade uint32 `json:"grade"`
+	Grade   uint32 `json:"grade"`
 	// 专题课
 	SpecCourses SpecCourseList `json:"spe_course_list"`
 	// 系统课
-	CoursePkgs []CoursePkg `json:"sys_course_pkg_list"`
+	CoursePkgs []*CoursePkg `json:"sys_course_pkg_list"`
 }
 
 /**
   专题课列表
- */
+*/
 type SpecCourseList struct {
-	Page uint32 `json:"page"`
-	Size uint32 `json:"size"`
+	Page  uint32 `json:"page"`
+	Size  uint32 `json:"size"`
 	Total uint32 `json:"total"`
 	// 具体课程列表
-	Data []CourseInfo `json:"data"`
+	Data []*CourseInfo `json:"data"`
 }
 
 /**
-	课程数据
- */
+课程数据
+*/
 type CourseInfo struct {
-	Cid uint32 `json:"cid"`
-	Name string `json:"name"`
-	CoverUrl string `json:"cover_url"`
-	Grade uint32 `json:"grade"`
-	Subject uint32 `json:"subject"`
-	RecordTime int64 `json:"recordtime"`
-	HasDiscount byte `json:"has_discount"`
-	PreAmount uint32 `json:"pre_amount"`
-	AfAmount uint32 `json:"af_amount"`
-	FirstSubBgTime int64 `json:"first_sub_bgtime"`
-	FirstSubEndTime int64 `json:"first_sub_endTime"`
+	Cid             uint32 `json:"cid"`
+	Name            string `json:"name"`
+	CoverUrl        string `json:"cover_url"`
+	Grade           uint32 `json:"grade"`
+	Subject         uint32 `json:"subject"`
+	RecordTime      int64  `json:"recordtime"`
+	HasDiscount     byte   `json:"has_discount"`
+	PreAmount       uint32 `json:"pre_amount"`
+	AfAmount        uint32 `json:"af_amount"`
+	FirstSubBgTime  int64  `json:"first_sub_bgtime"`
+	FirstSubEndTime int64  `json:"first_sub_endTime"`
 	// 任课教师
-	TeList []TeacherInfo `json:"te_list"`
+	TeList []*TeacherInfo `json:"te_list"`
 	// 辅导教师
-	ClassInfo struct{
-		TuList []TeacherInfo
+	ClassInfo struct {
+		TuList []*TeacherInfo
 	} `json:"class_info"`
 }
 
-
-func (*CourseData) Tag()  {
+func (*CourseData) Tag() {
 
 }
 
-
 /**
-   根据年级科目信息抓取课程数据
- */
-func FetchCourse()  {
+  根据年级科目信息抓取课程数据
+*/
+func FetchCourse() {
 	// 年级科目列表
 	gbs, err := GradeSubjects()
 	if err != nil {
@@ -91,25 +89,25 @@ func FetchCourse()  {
 			result.ParseData(&courses)
 			// 保存专题课数据， 专题课为分页数据
 			SaveSpeCourse(courses.SpecCourses.Data, "")
-			if courses.SpecCourses.Page * courses.SpecCourses.Size < courses.SpecCourses.Total {
-				res.Request.Visit(fmt.Sprintf(courseDataUrl, gb.Grade, gb.Subject, courses.SpecCourses.Page + 1,100))
+			if courses.SpecCourses.Page*courses.SpecCourses.Size < courses.SpecCourses.Total {
+				res.Request.Visit(fmt.Sprintf(courseDataUrl, gb.Grade, gb.Subject, courses.SpecCourses.Page+1, 100))
 			}
 
 			// 系统课仅第一次时处理
 			if initCoursePkg {
-				saveCoursePkg(courses, gb.Grade, gb.Subject)
+				saveCoursePkg(&courses, gb.Grade, gb.Subject)
 				initCoursePkg = false
 			}
 		})
 		url := fmt.Sprintf(courseDataUrl, gb.Grade, gb.Subject, 1, 100)
-		c.Request("GET", url , nil, nil, h)
+		c.Request("GET", url, nil, nil, h)
 	}
 }
 
 /**
   保存课程信息
- */
-func SaveSpeCourse(courseInfos []CourseInfo, pkgId string) {
+*/
+func SaveSpeCourse(courseInfos []*CourseInfo, pkgId string) {
 	if len(courseInfos) < 1 {
 		return
 	}
@@ -142,18 +140,17 @@ func SaveSpeCourse(courseInfos []CourseInfo, pkgId string) {
 		}
 
 		// 保存课程教师
-		SaveTeacher(courseInfo, course)
+		SaveTeacher(courseInfo, &course)
 
 		// 保存课程辅导
-		SaveTutor(courseInfo, course)
+		SaveTutor(courseInfo, &course)
 	}
 
 }
 
-
 /**
   获取年级科目
- */
+*/
 func GradeSubjects() ([]*model.GradeSubject, error) {
 	gbs := make([]*model.GradeSubject, 0)
 

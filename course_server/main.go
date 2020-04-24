@@ -12,10 +12,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-var(
+var (
 	cfg = pflag.StringP("config", "c", "", "crawler config file path.")
 )
-
 
 func main() {
 	pflag.Parse()
@@ -36,7 +35,7 @@ func main() {
 	router.Use(handler.Cors())
 
 	// 路由注册
-	v1 := router.Group("/v1")
+	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/dayStatistic", course.StatisticSubjectByDay)
 		v1.GET("/subjectCourseList", course.SubjectCourseList)

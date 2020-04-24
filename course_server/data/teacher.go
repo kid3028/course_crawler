@@ -7,18 +7,18 @@ import (
 )
 
 /**
-   教师
- */
+  教师
+*/
 type TeacherInfo struct {
-	Name string `json:"name"`
-	CoverUrl string `json:"cover_url"`
+	Name      string `json:"name"`
+	CoverUrl  string `json:"cover_url"`
 	Introduce string `json:"introduce"`
 }
 
 /**
   保存教师
- */
-func SaveTutor(courseInfo CourseInfo, course model.SpeCourse) {
+*/
+func SaveTutor(courseInfo *CourseInfo, course *model.SpeCourse) {
 	tutors := courseInfo.ClassInfo.TuList
 	if len(tutors) > 0 {
 		for _, teacherInfo := range tutors {
@@ -38,8 +38,7 @@ func SaveTutor(courseInfo CourseInfo, course model.SpeCourse) {
 	}
 }
 
-
-func SaveTeacher(courseInfo CourseInfo, course model.SpeCourse) {
+func SaveTeacher(courseInfo *CourseInfo, course *model.SpeCourse) {
 	if len(courseInfo.TeList) > 0 {
 		for _, teacherInfo := range courseInfo.TeList {
 			teacher := model.Teacher{

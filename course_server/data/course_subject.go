@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-var(
+var (
 
 	// 设置头部
 	h = http.Header{
@@ -20,29 +20,27 @@ var(
 	}
 	// grade  --> subject url
 	gradeSubjectUrl = "https://fudao.qq.com/cgi-proxy/course/grade_subject"
-
 )
 
-
 type GradeSubjectList struct {
-	GradeSubjects []GradeSubjectData `json:"grade_subjects"`
+	GradeSubjects []*GradeSubjectData `json:"grade_subjects"`
 }
 
 /**
   科目年级
- */
+*/
 type GradeSubjectData struct {
-	Grade   uint32   `json:"grade"`
-	Subject []uint32 `json:"subject"`
+	Grade   uint32    `json:"grade"`
+	Subject []*uint32 `json:"subject"`
 }
 
-func (*GradeSubjectList) Tag()  {
+func (*GradeSubjectList) Tag() {
 
 }
 
 /**
-   启动科目年级抓取
- */
+  启动科目年级抓取
+*/
 func FetchGradeSubject() {
 	c := colly.NewCollector()
 
@@ -51,9 +49,9 @@ func FetchGradeSubject() {
 }
 
 /**
-	处理科目年级抓取数据
- */
-func parseGradeSubjects(res *colly.Response)  {
+处理科目年级抓取数据
+*/
+func parseGradeSubjects(res *colly.Response) {
 	// 反序列抓取对象到公共响应
 	var result handler.JsonResult
 	if err := json.Unmarshal(res.Body, &result); err != nil {
@@ -80,14 +78,14 @@ func parseGradeSubjects(res *colly.Response)  {
 }
 
 /**
-	保存年级科目关系
- */
-func SaveGradeSubject(data GradeSubjectData, wg *sync.WaitGroup) {
+保存年级科目关系
+*/
+func SaveGradeSubject(data *GradeSubjectData, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for _, subject := range data.Subject {
 		gb := model.GradeSubject{
-			Grade:    data.Grade,
-			Subject:  subject,
+			Grade:      data.Grade,
+			Subject:    *subject,
 			CreateTime: time.Now(),
 			UpdateTime: time.Now(),
 		}
