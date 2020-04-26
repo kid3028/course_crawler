@@ -132,6 +132,7 @@ func SaveSpeCourse(courseInfos []*CourseInfo, pkgId string) {
 
 		if err := model.DB.Create(&course).Error; err != nil {
 			log.Errorf(err, "save course info fail, cid: %d, name: %s, subject: %d", course.Cid, course.Name, course.Subject)
+			continue
 		}
 
 		// 如果系统课程包id不为空，需要建立课程与课程包之间的关系
